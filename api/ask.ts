@@ -7,7 +7,7 @@
 //   ANTHROPIC_API_KEY
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { buildAiKnowledgeBase } from './portfolioData';
+import { buildAiKnowledgeBase } from '../src/data/portfolioData';
 
 interface IncomingMessage {
   role: 'user' | 'assistant';
