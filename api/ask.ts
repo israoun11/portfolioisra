@@ -7,6 +7,7 @@
 //   GEMINI_API_KEY  — get a free key at https://aistudio.google.com/apikey
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
+import { GoogleGenerativeAI } from '@google/generative-ai';
 import { buildAiKnowledgeBase } from '../src/data/portfolioData.js';
 
 interface IncomingMessage {
@@ -16,7 +17,6 @@ interface IncomingMessage {
 
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 800;
-const GEMINI_MODEL = 'gemini-1.5-flash';
 
 const requestLog = new Map<string, number[]>();
 const RATE_LIMIT = 15;
@@ -53,6 +53,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (messages.length === 0 || messages.length > MAX_MESSAGES) {
       return res.status(400).json({ error: 'Invalid message history.' });
     }
+
     for (const m of messages) {
       if (!['user', 'assistant'].includes(m.role) || typeof m.content !== 'string') {
         return res.status(400).json({ error: 'Invalid message format.' });
@@ -72,38 +73,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'PORTFOLIO KNOWLEDGE BASE:\n' +
       knowledgeBase;
 
-    const contents = messages.map((m) => ({
+    // استخدام المكتبة الرسمية
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: systemPrompt,
+    });
+
+    const history = messages.slice(0, -1).map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],
     }));
 
-    const url =
-      'https://generativelanguage.googleapis.com/v1beta/models/' +
-      GEMINI_MODEL +
-      ':generateContent';
+    const lastMessage = messages[messages.length - 1].content;
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey,
-      },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: systemPrompt }] },
-        contents,
-        generationConfig: { maxOutputTokens: 400 },
-      }),
-    });
-
-    if (!response.ok) {
-      const errorBody = await response.text();
-      console.error('Gemini API error', response.status, errorBody);
-      return res.status(502).json({ error: 'AI provider error.', debug: errorBody });
-    }
-
-    const data = await response.json();
-    const reply =
-      data.candidates?.[0]?.content?.parts?.[0]?.text ?? "Sorry, I couldn't generate a response.";
+    const chat = model.startChat({ history });
+    const result = await chat.sendMessage(lastMessage);
+    const reply = result.response.text();
 
     return res.status(200).json({ reply });
   } catch (err) {
