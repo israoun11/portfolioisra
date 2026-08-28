@@ -12,7 +12,7 @@ export const profile = {
   location: 'Tunisia',
   tagline:
     'Building modern, responsive and user-focused web applications with React, Node.js and modern web technologies.',
-  status: 'Open to Remote Opportunities',
+  status: 'Open to Opportunities',
   currentFocus: 'Full-Stack Development + AI Integration',
   lookingFor: 'Remote junior / full-stack / frontend opportunities',
   about: `Isra became a developer through hands-on, practical learning rather than a traditional path — building real projects, breaking them, and fixing them again. She focuses on the MERN stack (MongoDB, Express, React, Node.js) and modern TypeScript tooling, and is currently expanding into AI-assisted development and prompt engineering. She's a continuous learner who enjoys turning a rough idea into a working, polished product, and is actively looking for a remote junior or full-stack role where she can keep growing alongside an experienced team.`,

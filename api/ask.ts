@@ -7,7 +7,7 @@
 //   ANTHROPIC_API_KEY
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { buildAiKnowledgeBase } from './portfolioData.js';
+import { buildAiKnowledgeBase } from './portfolioData';
 
 interface IncomingMessage {
   role: 'user' | 'assistant';
@@ -79,7 +79,7 @@ ${buildAiKnowledgeBase()}`;
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20240620',
+        model: 'claude-sonnet-5',
         max_tokens: 400,
         system: systemPrompt,
         messages: messages.map((m) => ({ role: m.role, content: m.content })),
@@ -89,7 +89,9 @@ ${buildAiKnowledgeBase()}`;
     if (!response.ok) {
       const errorBody = await response.text();
       console.error('Anthropic API error', response.status, errorBody);
-      return res.status(response.status).json({ error: 'AI provider error.' });
+      // TEMPORARY DEBUG: shows the real reason in the browser so we can fix it fast.
+      // Remove the "debug" field once the assistant works again.
+      return res.status(502).json({ error: 'AI provider error.', debug: errorBody });
     }
 
     const data = await response.json();
