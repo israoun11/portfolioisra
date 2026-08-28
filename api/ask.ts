@@ -4,7 +4,7 @@
 //
 // Required environment variable (set in Vercel Project Settings → Environment
 // Variables, never committed to git):
-//   ANTHROPIC_API_KEY
+//   GEMINI_API_KEY  — get a free key at https://aistudio.google.com/apikey
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { buildAiKnowledgeBase } from '../src/data/portfolioData.js';
@@ -16,10 +16,10 @@ interface IncomingMessage {
 
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 800;
+const GEMINI_MODEL = 'gemini-2.0-flash';
 
-// Very small in-memory rate limiter (per serverless instance, best-effort only).
 const requestLog = new Map<string, number[]>();
-const RATE_LIMIT = 15; // requests
+const RATE_LIMIT = 15;
 const RATE_WINDOW_MS = 60_000;
 
 function isRateLimited(ip: string): boolean {
@@ -41,7 +41,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.status(429).json({ error: 'Too many requests' });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     return res.status(500).json({ error: 'AI assistant is not configured.' });
   }
@@ -70,33 +70,40 @@ and written in a warm, professional tone suitable for recruiters.
 PORTFOLIO KNOWLEDGE BASE:
 ${buildAiKnowledgeBase()}`;
 
+  // Gemini uses "model" instead of "assistant" for the AI's turns.
+  const contents = messages.map((m) => ({
+    role: m.role === 'assistant' ? 'model' : 'user',
+    parts: [{ text: m.content }],
+  }));
+
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+    const response = await fetch(
+      'https://generativelanguage.googleapis.com/v1beta/models/' +
+        GEMINI_MODEL +
+        ':generateContent',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey,
+        },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: systemPrompt }] },
+          contents,
+          generationConfig: { maxOutputTokens: 400 },
+        }),
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-5',
-        max_tokens: 400,
-        system: systemPrompt,
-        messages: messages.map((m) => ({ role: m.role, content: m.content })),
-      }),
-    });
+    );
 
     if (!response.ok) {
       const errorBody = await response.text();
-      console.error('Anthropic API error', response.status, errorBody);
-      // TEMPORARY DEBUG: shows the real reason in the browser so we can fix it fast.
-      // Remove the "debug" field once the assistant works again.
-      return res.status(502).json({ error: 'AI provider error.', debug: errorBody });
+      console.error('Gemini API error', response.status, errorBody);
+      return res.status(502).json({ error: 'AI provider error.' });
     }
 
     const data = await response.json();
-    const textBlock = data.content?.find((c: { type: string }) => c.type === 'text');
-    const reply = textBlock?.text ?? "Sorry, I couldn't generate a response.";
+    const reply: string =
+      data.candidates?.[0]?.content?.parts?.[0]?.text ?? "Sorry, I couldn't generate a response.";
 
     return res.status(200).json({ reply });
   } catch (err) {
