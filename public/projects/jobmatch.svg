@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 360">
+  <defs>
+    <linearGradient id="g2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#11141a"/>
+      <stop offset="100%" stop-color="#1e232b"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="360" fill="url(#g2)"/>
+  <g fill="none" stroke="#8b7fd6" stroke-opacity="0.15">
+    <line x1="0" y1="60" x2="640" y2="60"/>
+    <line x1="0" y1="120" x2="640" y2="120"/>
+    <line x1="0" y1="180" x2="640" y2="180"/>
+    <line x1="0" y1="240" x2="640" y2="240"/>
+    <line x1="0" y1="300" x2="640" y2="300"/>
+  </g>
+  <rect x="270" y="120" width="60" height="44" rx="6" fill="none" stroke="#8b7fd6" stroke-width="2"/>
+  <circle cx="300" cy="110" r="12" fill="none" stroke="#8b7fd6" stroke-width="2"/>
+  <path d="M340 142 h30 M340 152 h20" stroke="#8b7fd6" stroke-width="2" stroke-linecap="round"/>
+  <text x="320" y="250" font-family="monospace" font-size="22" fill="#e8e9ec" text-anchor="middle">JobMatch</text>
+  <text x="320" y="278" font-family="monospace" font-size="13" fill="#9a9fab" text-anchor="middle">Job Matching Platform · React · Node</text>
+</svg>

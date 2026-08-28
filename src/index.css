@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  body {
+    @apply bg-canvas text-ink font-body antialiased transition-colors duration-300;
+  }
+
+  html.light body {
+    @apply bg-paper text-inkLight;
+  }
+
+  html.light .text-ink {
+    color: '#2b1f22';
+  }
+  html.light .text-ink-dim {
+    color: '#6b5650';
+  }
+  html.light .text-ink-faint {
+    color: '#a68f83';
+  }
+  html.light .border-canvas-line {
+    border-color: theme('colors.paper.line');
+  }
+  html.light .bg-canvas-raised {
+    background-color: theme('colors.paper.raised');
+  }
+  html.light .bg-canvas {
+    background-color: theme('colors.paper.DEFAULT');
+  }
+  html.light .bg-canvas\/80 {
+    background-color: rgb(250 243 236 / 0.8);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+
+  /* Visible, high-contrast focus ring everywhere */
+  :focus-visible {
+    outline: 2px solid #e8a3ac;
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background-color: #e8a3ac;
+    color: #1c1417;
+  }
+}
+
+@layer components {
+  .container-xl {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .section-eyebrow {
+    @apply font-mono text-xs uppercase tracking-[0.2em] text-signal;
+  }
+
+  .card {
+    @apply rounded-xl border border-canvas-line bg-canvas-raised/60 backdrop-blur-sm;
+  }
+
+  html.light .card {
+    @apply border-paper-line bg-paper-raised;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center gap-2 rounded-lg bg-signal px-5 py-2.5 font-medium text-canvas transition-transform hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center gap-2 rounded-lg border border-canvas-line px-5 py-2.5 font-medium text-ink transition-colors hover:border-signal hover:text-signal;
+  }
+
+  html.light .btn-secondary {
+    @apply border-paper-line text-canvas;
+  }
+}
