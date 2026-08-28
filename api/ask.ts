@@ -16,7 +16,7 @@ interface IncomingMessage {
 
 const MAX_MESSAGES = 12;
 const MAX_MESSAGE_LENGTH = 800;
-const GEMINI_MODEL = 'gemini-2.0-flash';
+const GEMINI_MODEL = 'gemini-1.5-flash';
 
 const requestLog = new Map<string, number[]>();
 const RATE_LIMIT = 15;
