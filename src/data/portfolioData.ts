@@ -4,7 +4,7 @@ import type {
   TimelineEntry,
   Certificate,
   ContactLinks,
-} from '../types/portfolio';
+} from '../types/portfolio.js';
 
 export const profile = {
   name: 'Isra Oun',
