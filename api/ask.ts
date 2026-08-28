@@ -74,15 +74,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       knowledgeBase;
 
     const genAI = new GoogleGenerativeAI(apiKey);
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-1.5-flash',
-      systemInstruction: systemPrompt,
-    });
-
     
+    // استخدام إصدار v1 المستقر صراحة للاتصال بـ gemini-1.5-flash
+    const model = genAI.getGenerativeModel(
+      {
+        model: 'gemini-1.5-flash',
+        systemInstruction: systemPrompt,
+      },
+      { apiVersion: 'v1' }
+    );
+
     const lastMessage = messages[messages.length - 1].content;
 
-    
     const pastMessages = messages.slice(0, -1);
     while (pastMessages.length > 0 && pastMessages[0].role === 'assistant') {
       pastMessages.shift();
