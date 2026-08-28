@@ -31,15 +31,6 @@ function isRateLimited(ip: string): boolean {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // CORS Headers
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
@@ -98,10 +89,7 @@ ${buildAiKnowledgeBase()}`;
     if (!response.ok) {
       const errorBody = await response.text();
       console.error('Anthropic API error', response.status, errorBody);
-      return res.status(response.status).json({ 
-        error: 'AI provider error.', 
-        details: errorBody 
-      });
+      return res.status(response.status).json({ error: 'AI provider error.' });
     }
 
     const data = await response.json();
@@ -109,7 +97,7 @@ ${buildAiKnowledgeBase()}`;
     const reply = textBlock?.text ?? "Sorry, I couldn't generate a response.";
 
     return res.status(200).json({ reply });
-  } catch (err: unknown) {
+  } catch (err) {
     console.error('Unexpected /api/ask error', err);
     return res.status(500).json({ error: 'Unexpected error contacting the AI provider.' });
   }
