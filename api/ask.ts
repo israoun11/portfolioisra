@@ -73,19 +73,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       'PORTFOLIO KNOWLEDGE BASE:\n' +
       knowledgeBase;
 
-    // استخدام المكتبة الرسمية
     const genAI = new GoogleGenerativeAI(apiKey);
     const model = genAI.getGenerativeModel({
       model: 'gemini-1.5-flash',
       systemInstruction: systemPrompt,
     });
 
-    const history = messages.slice(0, -1).map((m) => ({
+    
+    const lastMessage = messages[messages.length - 1].content;
+
+    
+    const pastMessages = messages.slice(0, -1);
+    while (pastMessages.length > 0 && pastMessages[0].role === 'assistant') {
+      pastMessages.shift();
+    }
+
+    const history = pastMessages.map((m) => ({
       role: m.role === 'assistant' ? 'model' : 'user',
       parts: [{ text: m.content }],
     }));
-
-    const lastMessage = messages[messages.length - 1].content;
 
     const chat = model.startChat({ history });
     const result = await chat.sendMessage(lastMessage);
