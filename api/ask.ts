@@ -31,6 +31,15 @@ function isRateLimited(ip: string): boolean {
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // CORS Headers
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     res.setHeader('Allow', 'POST');
     return res.status(405).json({ error: 'Method not allowed' });
@@ -79,7 +88,7 @@ ${buildAiKnowledgeBase()}`;
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-5',
+        model: 'claude-3-5-sonnet-20240620',
         max_tokens: 400,
         system: systemPrompt,
         messages: messages.map((m) => ({ role: m.role, content: m.content })),
@@ -87,12 +96,12 @@ ${buildAiKnowledgeBase()}`;
     });
 
     if (!response.ok) {
-      // Logged server-side only (visible in Vercel → Deployments → Functions logs),
-      // never sent to the browser — this is what to check first if the assistant
-      // stops responding again.
       const errorBody = await response.text();
       console.error('Anthropic API error', response.status, errorBody);
-      return res.status(502).json({ error: 'AI provider error.' });
+      return res.status(response.status).json({ 
+        error: 'AI provider error.', 
+        details: errorBody 
+      });
     }
 
     const data = await response.json();
@@ -100,7 +109,7 @@ ${buildAiKnowledgeBase()}`;
     const reply = textBlock?.text ?? "Sorry, I couldn't generate a response.";
 
     return res.status(200).json({ reply });
-  } catch (err) {
+  } catch (err: unknown) {
     console.error('Unexpected /api/ask error', err);
     return res.status(500).json({ error: 'Unexpected error contacting the AI provider.' });
   }
