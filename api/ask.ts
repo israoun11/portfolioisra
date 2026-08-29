@@ -20,13 +20,13 @@ const MAX_MESSAGE_LENGTH = 800;
 
 const requestLog = new Map<string, number[]>();
 const RATE_LIMIT = 15;
-const RATE_WINDOW_MS = 60000;
+const RATE_WINDOW_MS = 60_000;
 
 function isRateLimited(ip: string): boolean {
   const now = Date.now();
 
   const timestamps = (requestLog.get(ip) ?? []).filter(
-    (t) => now - t < RATE_WINDOW_MS
+    (timestamp) => now - timestamp < RATE_WINDOW_MS
   );
 
   timestamps.push(now);
@@ -40,6 +40,10 @@ export default async function handler(
   res: VercelResponse
 ) {
   try {
+    // --------------------------------------------------
+    // Method check
+    // --------------------------------------------------
+
     if (req.method !== 'POST') {
       res.setHeader('Allow', 'POST');
 
@@ -47,6 +51,10 @@ export default async function handler(
         error: 'Method not allowed',
       });
     }
+
+    // --------------------------------------------------
+    // Rate limiting
+    // --------------------------------------------------
 
     const forwardedFor = req.headers['x-forwarded-for'];
 
@@ -61,6 +69,10 @@ export default async function handler(
       });
     }
 
+    // --------------------------------------------------
+    // Gemini API key
+    // --------------------------------------------------
+
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
@@ -70,6 +82,10 @@ export default async function handler(
         error: 'AI assistant is not configured.',
       });
     }
+
+    // --------------------------------------------------
+    // Validate request body
+    // --------------------------------------------------
 
     const body = req.body as {
       messages?: IncomingMessage[];
@@ -102,67 +118,103 @@ export default async function handler(
       }
     }
 
+    // --------------------------------------------------
+    // Portfolio knowledge
+    // --------------------------------------------------
+
     const knowledgeBase = buildAiKnowledgeBase();
 
-    const systemPrompt = `
+    const systemInstruction = `
 You are "Ask Isra AI", a friendly AI assistant embedded in Isra Oun's developer portfolio.
 
 Your job is to answer questions about Isra using ONLY the portfolio information provided below.
 
 IMPORTANT RULES:
+
 - Never invent skills, projects, experience, education, certifications, dates, or technologies.
-- If the requested information is not available, clearly say that you don't have that information.
-- If appropriate, suggest using the Contact section.
+- Never claim professional experience unless it is explicitly stated in the portfolio knowledge base.
+- If the information is not available, clearly say that you don't have that detail.
+- When appropriate, suggest that the visitor use the Contact section.
 - Keep answers concise, around 2-4 sentences.
-- Be friendly, professional, and helpful.
-- You are speaking to recruiters, employers, and visitors.
-- Do not claim that Isra has professional experience unless it is explicitly present in the knowledge base.
+- Be friendly, warm, professional, and helpful.
+- You are speaking to recruiters, employers, and portfolio visitors.
 
 PORTFOLIO KNOWLEDGE BASE:
 
 ${knowledgeBase}
 `;
 
+    // --------------------------------------------------
+    // Build conversation
+    // --------------------------------------------------
+
+    const conversation = messages
+      .map((message) => {
+        const speaker =
+          message.role === 'assistant'
+            ? 'Assistant'
+            : 'Visitor';
+
+        return `${speaker}: ${message.content}`;
+      })
+      .join('\n\n');
+
+    const latestMessage =
+      messages[messages.length - 1].content;
+
+    // --------------------------------------------------
+    // Gemini Interactions API
+    // --------------------------------------------------
+
     const ai = new GoogleGenAI({
       apiKey,
     });
 
-    const contents = messages.map((message) => ({
-      role: message.role === 'assistant' ? 'model' : 'user',
-      parts: [
-        {
-          text: message.content,
-        },
-      ],
-    }));
+    const interaction = await ai.interactions.create({
+      model: 'gemini-3.6-flash',
 
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      system_instruction: systemInstruction,
 
-      contents,
+      input: `
+Here is the conversation so far:
 
-      config: {
-        systemInstruction: systemPrompt,
-        temperature: 0.4,
-        maxOutputTokens: 300,
-      },
+${conversation}
+
+Answer the visitor's latest message:
+
+${latestMessage}
+      `.trim(),
     });
 
-    const reply = response.text?.trim();
+    // --------------------------------------------------
+    // Extract response
+    // --------------------------------------------------
+
+    const reply = interaction.output_text?.trim();
 
     if (!reply) {
-      console.error('Gemini returned an empty response');
+      console.error(
+        'Gemini returned an empty response:',
+        interaction
+      );
 
       return res.status(500).json({
         error: 'AI returned an empty response.',
       });
     }
 
+    // --------------------------------------------------
+    // Success
+    // --------------------------------------------------
+
     return res.status(200).json({
       reply,
     });
   } catch (error) {
-    console.error('Unexpected /api/ask error:', error);
+    console.error(
+      'Unexpected /api/ask error:',
+      error
+    );
 
     const message =
       error instanceof Error
