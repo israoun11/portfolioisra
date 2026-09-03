@@ -19,9 +19,9 @@ export const profile = {
 } as const;
 
 export const links: ContactLinks = {
-  email: 'contact@example.com', // TODO: replace with Isra's real email before deploying
+  email: 'israoun55@gmail.com', // TODO: replace with Isra's real email before deploying
   github: 'https://github.com/israoun11',
-  linkedin: 'https://www.linkedin.com/in/isra-oun-a54727407',
+  linkedin: 'https://www.linkedin.com/in/isra-oun-a54727407/',
   cvUrl: '/isra-oun-cv.pdf', // TODO: add the actual CV file to /public
 };
 

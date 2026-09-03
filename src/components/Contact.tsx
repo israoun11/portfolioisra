@@ -8,7 +8,7 @@ export function Contact() {
           Have a project or opportunity in mind?
         </h2>
         <p className="max-w-md text-ink-dim">
-          I'm currently looking for remote junior or full-stack opportunities — feel free to reach out.
+          I`m currently looking for remote junior or full-stack opportunities — feel free to reach out.
         </p>
         <div className="flex flex-wrap justify-center gap-3">
           <a href={`mailto:${links.email}`} className="btn-primary">
