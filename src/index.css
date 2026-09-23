@@ -2,101 +2,155 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
+:root {
+  --ivory: #fbf3ec;
+  --paper: #fbf3ec;
+  --charcoal: #2b1e23;
+  --burgundy: #6e2140;
+  --rose: #d98ca0;
+  --gold: #b68b5c;
+  --lilac: #c9b6e4;
+  --peach: #f3c9a6;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
   html {
-    scroll-behavior: smooth;
+    scroll-behavior: auto;
   }
-
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto;
-    }
-    *,
-    *::before,
-    *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
-  }
-
-  body {
-    @apply bg-canvas text-ink font-body antialiased transition-colors duration-300;
-  }
-
-  html.light body {
-    @apply bg-paper text-inkLight;
-  }
-
-  html.light .text-ink {
-    color: '#2b1f22';
-  }
-  html.light .text-ink-dim {
-    color: '#6b5650';
-  }
-  html.light .text-ink-faint {
-    color: '#a68f83';
-  }
-  html.light .border-canvas-line {
-    border-color: theme('colors.paper.line');
-  }
-  html.light .bg-canvas-raised {
-    background-color: theme('colors.paper.raised');
-  }
-  html.light .bg-canvas {
-    background-color: theme('colors.paper.DEFAULT');
-  }
-  html.light .bg-canvas\/80 {
-    background-color: rgb(250 243 236 / 0.8);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4 {
-    @apply font-display;
-  }
-
-  /* Visible, high-contrast focus ring everywhere */
-  :focus-visible {
-    outline: 2px solid #e8a3ac;
-    outline-offset: 3px;
-    border-radius: 2px;
-  }
-
-  ::selection {
-    background-color: #e8a3ac;
-    color: #1c1417;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
   }
 }
 
-@layer components {
-  .container-xl {
-    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
-  }
+html,
+body {
+  margin: 0;
+  /* No background-color here on purpose: the browser propagates a body
+     background to the viewport and paints it beneath every fixed,
+     negative-z-index element — which would hide the 3D canvas behind an
+     opaque layer. The ivory backdrop is instead an explicit fixed layer
+     in App.jsx, ordered correctly relative to the canvas. */
+  color: var(--charcoal);
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
 
-  .section-eyebrow {
-    @apply font-mono text-xs uppercase tracking-[0.2em] text-signal;
-  }
+::selection {
+  background: var(--burgundy);
+  color: var(--ivory);
+}
 
-  .card {
-    @apply rounded-xl border border-canvas-line bg-canvas-raised/60 backdrop-blur-sm;
-  }
+/* Visible keyboard focus everywhere */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--burgundy);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
 
-  html.light .card {
-    @apply border-paper-line bg-paper-raised;
-  }
+/* Custom cursor (disabled on touch devices, see CustomCursor.jsx) */
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--burgundy);
+  pointer-events: none;
+  z-index: 9999;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+}
 
-  .btn-primary {
-    @apply inline-flex items-center gap-2 rounded-lg bg-signal px-5 py-2.5 font-medium text-canvas transition-transform hover:scale-[1.02] active:scale-[0.98];
-  }
+.cursor-ring {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(33, 29, 27, 0.35);
+  pointer-events: none;
+  z-index: 9998;
+  transform: translate(-50%, -50%);
+  will-change: transform;
+  transition: width 0.25s var(--ease, ease), height 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+}
 
-  .btn-secondary {
-    @apply inline-flex items-center gap-2 rounded-lg border border-canvas-line px-5 py-2.5 font-medium text-ink transition-colors hover:border-signal hover:text-signal;
-  }
+.cursor-ring.is-active {
+  width: 64px;
+  height: 64px;
+  border-color: transparent;
+  background: rgba(110, 42, 58, 0.08);
+}
 
-  html.light .btn-secondary {
-    @apply border-paper-line text-canvas;
+@media (hover: none) {
+  .cursor-dot,
+  .cursor-ring {
+    display: none;
   }
+}
+
+/* Thin decorative rule used as a structural divider, not decoration */
+.rule {
+  height: 1px;
+  background: linear-gradient(90deg, rgba(33, 29, 27, 0.16), rgba(33, 29, 27, 0));
+}
+
+/* Editorial kicker text (small caps-free label, used sparingly and meaningfully) */
+.kicker {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--burgundy);
+}
+
+.glass-pane {
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.18));
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.45);
+}
+
+/* Soft feminine gradient text, used once — the closing line, not everywhere */
+.bloom-text {
+  background: linear-gradient(100deg, var(--burgundy), var(--rose) 45%, var(--gold) 90%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* A pearlescent sheen used on floating document/card surfaces */
+.pearl-surface {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(247, 239, 234, 0.55));
+  box-shadow: 0 30px 60px -35px rgba(110, 33, 64, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+canvas {
+  touch-action: pan-y;
 }

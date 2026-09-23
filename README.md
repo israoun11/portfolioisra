@@ -1,173 +1,193 @@
-# Isra Oun — Developer Portfolio
+# Isra Oun — Portfolio
 
-An interactive, frontend-only developer portfolio built with React, TypeScript and Vite —
-featuring a grounded AI assistant ("Ask Isra AI"), a live GitHub activity dashboard, and an
-optional developer terminal.
+A React + Vite portfolio built around one original 3D symbol — the
+**Blooming Code Sculpture**: a procedural flower-like form, invented for
+this site, that starts as a closed bud in the hero and opens, separates
+into a "skill garden," scatters into a project gallery, and returns to a
+full bloom by the end of the page — all driven by scroll and a GSAP
+ScrollTrigger camera that moves through the scene section by section.
 
-*Live site:* https://portfolioisra-rho.vercel.app/
-*GitHub:* https://github.com/israoun11
+Stack: React, Vite, JavaScript, Tailwind CSS, Three.js, React Three
+Fiber, Drei, GSAP (ScrollTrigger), Framer Motion, Axios.
 
 ---
 
-## Features
+## 1. Install
 
-- *Hero, About, Skills, Projects (with tech filters), Learning Timeline, Certificates, Contact* — the core recruiter-facing sections.
-- *Ask Isra AI* — a chat assistant that answers questions about Isra using only a structured knowledge base (src/data/portfolioData.ts). It never invents information. The AI provider call happens in a Vercel serverless function so the API key is never exposed to the browser.
-- *Developer Activity dashboard* — live public data (repos, followers, following, recent activity) pulled from the real GitHub REST API client-side, with loading and error states and short-lived caching.
-- *Interactive terminal* — an optional easter egg (help, about, projects, skills, github, contact, clear).
-- *Dark / light / system theme*, persisted across visits.
-- Fully responsive, keyboard-accessible, and built with prefers-reduced-motion support.
+```bash
+npm install
+```
 
-## Tech stack
+## 2. Run locally
 
-React · TypeScript · Vite · Tailwind CSS · Framer Motion · React Router · Vitest · React Testing
-Library · ESLint · Prettier · GitHub Actions · Vercel (static hosting + one serverless function).
+```bash
+npm run dev
+```
 
-There is *no custom backend, Express server, or database* — this is a static site. The only
-server-side code is a single Vercel Serverless Function (api/ask.ts) that proxies AI requests
-so the API key stays private.
+Opens at `http://localhost:5173`.
+
+## 3. Production build
+
+```bash
+npm run build
+npm run preview   # serve the built dist/ locally to sanity-check it
+```
+
+## 4. Replace the CV
+
+The download/preview button reads from **`public/cv.pdf`**. To update it,
+just replace that file with your new PDF, keeping the exact same name:
+
+```bash
+cp /path/to/new-cv.pdf public/cv.pdf
+```
+
+Nothing in the code needs to change — the CV section (`src/sections/CV.jsx`)
+always points at `/cv.pdf`.
+
+A placeholder `cv.pdf` is included so the download button and preview work
+out of the box; **replace it with the real CV before publishing.**
+
+## 5. How the GitHub integration works
+
+`src/hooks/useGithubRepos.js` calls the public GitHub REST API directly
+from the browser:
+
+```
+GET https://api.github.com/users/israoun11/repos?per_page=100&sort=updated
+```
+
+This endpoint is public and needs no token, so **there is no secret to
+protect** — nothing is exposed because nothing is used. New public
+repositories you push to GitHub show up in the "digital constellation"
+(`src/sections/Constellation.jsx`, desktop) or the simple list (mobile)
+automatically on the next visit; nothing needs to be edited by hand.
+
+Results are cached in `localStorage` for 30 minutes so repeat visits
+don't hit GitHub's unauthenticated rate limit (60 requests/hour per IP).
+If a request fails, the site falls back to the last cached data, and
+if there's no cache at all, it shows a friendly message linking
+straight to your GitHub profile instead of breaking.
+
+**Optional — higher rate limit:** if you later want more headroom, add a
+Vercel serverless function (`/api/github.js`) holding a `GITHUB_TOKEN` in
+a Vercel environment variable, proxying the request server-side, then
+point `useGithubRepos.js` at `/api/github` instead. This keeps any token
+out of the frontend bundle. Not required for the site to work today.
+
+## 6. How to add or change featured projects
+
+Featured projects (the large, hand-curated gallery in "Projects") are
+defined in **`src/data/projects.js`**:
+
+```js
+export const featuredProjects = [
+  {
+    repo: 'Foodly',          // must match the GitHub repo name
+    name: 'Foodly',
+    tagline: 'A short line under the title',
+    description: 'A few sentences about the project.',
+    tech: ['React', 'Vite', '...'],
+    live: 'https://your-live-url.vercel.app/',
+    github: 'https://github.com/israoun11/Foodly',
+    accent: 'burgundy', // burgundy | gold | rose | charcoal
+  },
+  // add more objects here
+]
+```
+
+Add, remove, or reorder objects in this array to change what's featured
+and in what order it appears. Everything else you push to GitHub still
+appears automatically in the live constellation below it.
+
+## 7. Deploy to Vercel
+
+Static Vite build, no special configuration needed:
+
+1. Push this project to a GitHub repository.
+2. In Vercel, "Add New Project" → import that repository.
+3. Framework preset: **Vite** (auto-detected). Build command
+   `npm run build`, output directory `dist` (both auto-detected).
+4. Deploy.
+
+**To keep the same URL as the current portfolio** (`portfolioisra-rho.vercel.app`):
+either (a) connect this repo to the *existing* Vercel project instead of
+creating a new one (simplest — no domain settings to touch), or (b)
+deploy as a new project and reassign the domain from the old project's
+Settings → Domains once you're happy with it.
+
+## 8. Environment variables
+
+**None are required.** `npm install && npm run dev` works out of the box.
+The only optional addition is the `GITHUB_TOKEN` described in section 5.
+
+## 9. Customize colors and content
+
+- **Colors:** `tailwind.config.js` → `theme.extend.colors` — `cream`,
+  `pearl`, `plum`/`charcoal`, `blush`, `rose`, `lilac`, `lavender`,
+  `peach`, `champagne`, `burgundy`, `wine`, `gold`. Change the hex values
+  there and they update everywhere, including the 3D sculpture's petal
+  palette (`src/three/bloomStages.js` → `PETAL_PALETTE`).
+- **Fonts:** loaded in `index.html` (Fraunces for display/headings, Inter
+  for body/UI).
+- **Copy:** each section's text lives in its component under
+  `src/sections/`. Skills, certifications, education and languages live
+  in `src/data/` as plain arrays.
+- **The sculpture's choreography:** the seven "stages" it moves through
+  (bud → bloom → garden → gallery → archive → editorial → finale) are
+  defined in `src/three/bloomStages.js`; petal shape/material lives in
+  `src/three/petalGeometry.js` and `src/three/Petal.jsx`; the camera's
+  cinematic path per section is in `src/three/CameraRig.jsx`.
 
 ## Project structure
 
+```
+src/
+  components/   Nav, cursor, loader, scroll progress, shared UI bits
+  sections/     Hero, About, Skills, Projects, Github, Constellation,
+                Certifications, CV, Contact, Footer
+  three/        The Blooming Code Sculpture: Core, Petal, Bubbles,
+                Ribbons, CameraRig, choreography data
+  hooks/        useGithubRepos, useIsMobile, useReducedMotion
+  data/         Editable content: projects, skills, certifications
+public/
+  cv.pdf        Replace this file to update the CV (see section 4)
+  favicon.svg, og-image.jpg
+```
 
-├── api/
-│   └── ask.ts              # Serverless function powering Ask Isra AI (keeps the key private)
-├── public/                 # Static assets, SEO files, project placeholder images
-├── src/
-│   ├── components/
-│   │   ├── ai/              # Ask Isra AI chat UI
-│   │   ├── github/           # GitHub live dashboard
-│   │   ├── layout/            # Navbar, Footer, ThemeToggle
-│   │   ├── sections/          # Hero, About, Projects, Skills, Timeline, Certificates, Contact
-│   │   └── terminal/          # Optional developer terminal
-│   ├── data/
-│   │   └── portfolioData.ts   # Single source of truth: profile, skills, projects, AI knowledge base
-│   ├── hooks/
-│   │   └── useTheme.ts
-│   ├── services/
-│   │   ├── ai.ts              # Client for /api/ask
-│   │   └── github.ts          # GitHub REST API client with caching
-│   ├── types/                 # Shared TypeScript types
-│   ├── test/setup.ts           # Vitest + Testing Library setup
-│   ├── App.tsx
-│   └── main.tsx
-├── .github/workflows/ci.yml   # Lint → test → build on every push/PR
-├── .env.example
-└── tailwind.config.js
+## Accessibility & performance notes
 
+- Respects `prefers-reduced-motion`: idle sculpture motion, pointer
+  parallax, the camera's cinematic moves and the hero's GSAP parallax all
+  switch off; scroll-linked petal choreography stays, since it only moves
+  in direct response to the visitor's own scrolling.
+- Petal count, bubble count, ribbons and canvas resolution all drop on
+  narrower viewports; the GitHub constellation falls back to a simple
+  list layout on mobile, where a ring layout would just be cramped.
+- All petal instances share one procedural geometry (built once, reused
+  many times) rather than each carrying its own — the sculpture stays
+  cheap to render even with over a dozen petals plus bubbles and ribbons
+  on screen.
+- If WebGL fails to initialize for any reason, `SceneBoundary` removes
+  the canvas quietly rather than breaking the rest of the page.
+- Keyboard focus is visible on every interactive element; all images and
+  icon-only controls carry accessible labels.
 
-## Installation
+## A note on this build
 
-bash
-git clone https://github.com/israoun11/<your-repo-name>.git
-cd <your-repo-name>
-npm install
+This project was written by hand in an environment without package-registry
+network access, so `npm install` / `npm run build` could not be executed
+here to produce a live build log. Every file was syntax-checked individually
+(via esbuild) and every relative import was verified to resolve — but please
+run `npm install && npm run build` yourself as a final check before
+deploying. Two things worth a look when you do:
 
+1. The GSAP camera cinematics in `CameraRig.jsx` use one ScrollTrigger per
+   section with fairly wide, slightly overlapping ranges; on some screens
+   the camera move between two adjacent sections may feel a touch abrupt.
+   If so, narrowing each `start`/`end` pair is the first thing to try.
+2. `iridescence` on `meshPhysicalMaterial` requires three.js r157+ (this
+   project pins `three@^0.169.0`, well past that), so it should render as
+   intended, but it's a newer material feature worth eyeballing on first
+   run.
 
-## Environment variables
-
-Only one variable is needed, and only for the AI assistant:
-
-| Variable            | Where it's used | Where to set it |
-|---------------------|------------------|------------------|
-| ANTHROPIC_API_KEY | api/ask.ts (server-side only) | Vercel → Project Settings → Environment Variables |
-
-Copy .env.example to .env.local for local development with vercel dev. *Never* commit a
-real .env.local file or put the key in any client-side (src/) code — .env.local is already
-git-ignored.
-
-If the key isn't set, the rest of the site still works normally; only the AI assistant will show
-a friendly "temporarily unavailable" message.
-
-## Running locally
-
-bash
-npm run dev
-
-
-Opens the site at http://localhost:5173. The AI assistant requires the serverless function, so
-for full functionality use the Vercel CLI instead of plain Vite:
-
-bash
-npm install -g vercel
-vercel dev
-
-
-## Testing
-
-bash
-npm test          # run once
-npm run test:watch
-
-
-Tests cover: navigation, project filtering/rendering, AI assistant conversation states, GitHub
-API loading/error states, theme switching, and contact links.
-
-## Linting & formatting
-
-bash
-npm run lint
-npm run format
-
-
-## Build
-
-bash
-npm run build
-npm run preview   # preview the production build locally
-
-
-## Deployment (Vercel)
-
-1. Push this repo to GitHub.
-2. Import it in Vercel (framework preset: *Vite*).
-3. Add the ANTHROPIC_API_KEY environment variable in Vercel project settings.
-4. Deploy — api/ask.ts is automatically picked up as a serverless function; no extra
-   configuration is required.
-
-## AI integration explained
-
-src/data/portfolioData.ts exports buildAiKnowledgeBase(), a flattened text summary of Isra's
-real profile, skills, projects, timeline and contact info. When a visitor sends a message:
-
-1. The browser calls POST /api/ask with the conversation history (never the API key).
-2. The serverless function builds a system prompt containing the knowledge base and an explicit
-   instruction not to invent information, then calls the Anthropic API using the private
-   ANTHROPIC_API_KEY.
-3. The reply is returned to the browser and rendered in the chat UI.
-
-This keeps the architecture frontend-first (no server you manage) while keeping the secret key
-safe, and guarantees the assistant can't answer outside of what's actually true about Isra.
-
-## GitHub API explained
-
-src/services/github.ts calls the public, unauthenticated GitHub REST API
-(api.github.com/users/israoun11 and .../repos) directly from the browser — no token needed
-for public data. Responses are cached in sessionStorage for 10 minutes to avoid hitting GitHub's
-anonymous rate limit, and the dashboard shows explicit loading and error states rather than stale
-hardcoded numbers.
-
-## What I learned building this
-
-- Structuring a real-world app in *TypeScript* end-to-end, including typed API responses.
-- Integrating an *AI API* safely from a frontend-only architecture, using a minimal serverless
-  function instead of a full backend.
-- Consuming a *REST API* (GitHub) with proper loading/error UX and client-side caching.
-- Building deliberate, restrained motion design with *Framer Motion*.
-- Writing meaningful component and hook tests with *Vitest* and *React Testing Library*.
-- Setting up a *CI/CD* pipeline with *GitHub Actions* that fails the build on lint, test, or
-  build errors.
-- Practical *web accessibility*: semantic landmarks, visible focus states, ARIA live regions
-  for the chat/terminal, and prefers-reduced-motion support.
-- *Performance* habits: code-splitting vendor bundles, lazy-loaded images, and avoiding
-  unnecessary re-renders.
-
-## Notes / things to personalize before going live
-
-- Replace the placeholder email in src/data/portfolioData.ts (links.email).
-- Add a real CV file at public/isra-oun-cv.pdf (or update links.cvUrl).
-- Replace the SVG project thumbnails in public/projects/ with real screenshots.
-- public/og-image.svg is a lightweight placeholder — some social platforms prefer a real PNG/JPG
-  for link previews; consider exporting one at 1200×630.
-- Fill in real certificates in certificates (currently placeholders).
-- Add your third project's real details in place of the placeholder entry in projects.
