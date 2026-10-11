@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://portfolioisra-rho.vercel.app/sitemap.xml
