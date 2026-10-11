@@ -1,40 +1,51 @@
-import { motion } from 'framer-motion';
-import { skills } from '../data/portfolioData';
+import { useState } from 'react'
+import { Code2, Database, Sparkles } from 'lucide-react'
+import { FlowerArt } from './Art'
 
-export function Skills() {
+const cards = [
+  { n: '01', title: 'Frontend', sub: 'The Blooming Canopy', icon: Code2, tone: 'teal',
+    art: { petal: '#9fe8de', petal2: '#1f8f7e', core: '#f1c27d', glow: '#2ec4b6', n: 10 },
+    skills: ['React', 'TypeScript', 'JavaScript', 'HTML & CSS', 'Tailwind CSS'] },
+  { n: '02', title: 'Backend', sub: 'The Root Network', icon: Database, tone: 'rose',
+    art: { petal: '#e0678f', petal2: '#5b1530', core: '#f6efe2', glow: '#b04d7a', n: 8 },
+    skills: ['Node.js', 'Express', 'MongoDB', 'REST APIs'] },
+  { n: '03', title: 'AI & Dev Tools', sub: 'The Wandering Spores', icon: Sparkles, tone: 'blue',
+    art: { petal: '#b9c8ff', petal2: '#4a5fc1', core: '#d9a3b0', glow: '#7d8ff0', n: 9 },
+    skills: ['Git & GitHub', 'GitHub Actions & CI/CD', 'Vitest & React Testing Library', 'Gemini API integration'] },
+]
+const marquee = ['React', 'TypeScript', 'Node.js', 'Tailwind', 'MongoDB', 'Express', 'Gemini API']
+
+export default function Skills() {
+  const [open, setOpen] = useState<number | null>(0)
   return (
-    <section id="skills" className="container-xl py-24" aria-labelledby="skills-heading">
-      <p className="section-eyebrow mb-3">Skills</p>
-      <h2 id="skills-heading" className="mb-10 text-3xl font-semibold sm:text-4xl">
-        Toolkit
-      </h2>
-
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {skills.map((group, i) => (
-          <motion.div
-            key={group.category}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-60px' }}
-            transition={{ duration: 0.4, delay: i * 0.06 }}
-            className="card p-5"
-          >
-            <h3 className="mb-4 font-mono text-xs uppercase tracking-[0.15em] text-signal">
-              {group.category}
-            </h3>
-            <ul className="flex flex-wrap gap-2">
-              {group.skills.map((s) => (
-                <li
-                  key={s}
-                  className="rounded-md border border-canvas-line px-2.5 py-1 text-xs text-ink-dim"
-                >
-                  {s}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
+    <section id="skills" className="section" aria-labelledby="skills-title">
+      <h2 id="skills-title" className="h-big">Skills grown like giant flowers.</h2>
+      <p className="lead">In this world, every ability is a flower. Three bloom the brightest — each with its own shape, glow and little constellation of tools.</p>
+      <ul className="skill-grid">
+        {cards.map((c, i) => {
+          const Icon = c.icon
+          const on = open === i
+          return (
+            <li key={c.title}>
+              <button className={`skill-card ${c.tone}` + (on ? ' on' : '')} aria-expanded={on} onClick={() => setOpen(on ? null : i)}>
+                <span className="skill-num" aria-hidden="true">{c.n}</span>
+                <span className="skill-icon" aria-hidden="true"><Icon size={18} /></span>
+                <FlowerArt {...c.art} />
+                <span className="skill-label">
+                  <small>{c.sub}</small>
+                  <strong>{c.title}</strong>
+                </span>
+                <span className={'skill-chips' + (on ? ' show' : '')}>
+                  {c.skills.map((s) => <span key={s}>{s}</span>)}
+                </span>
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+      <div className="marquee" aria-label="Main technologies">
+        <ul>{[...marquee, ...marquee].map((m, i) => <li key={i} aria-hidden={i >= marquee.length}>{m} <b>✦</b></li>)}</ul>
       </div>
     </section>
-  );
+  )
 }

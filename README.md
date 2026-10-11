@@ -1,193 +1,75 @@
-# Isra Oun — Portfolio
+# Isra's Digital Planet — 3D Portfolio
 
-A React + Vite portfolio built around one original 3D symbol — the
-**Blooming Code Sculpture**: a procedural flower-like form, invented for
-this site, that starts as a closed bud in the hero and opens, separates
-into a "skill garden," scatters into a project gallery, and returns to a
-full bloom by the end of the page — all driven by scroll and a GSAP
-ScrollTrigger camera that moves through the scene section by section.
+React + TypeScript + Vite + React Three Fiber (Three.js / Drei) + Framer Motion.
+No backend. Contact uses a real `mailto:` link.
 
-Stack: React, Vite, JavaScript, Tailwind CSS, Three.js, React Three
-Fiber, Drei, GSAP (ScrollTrigger), Framer Motion, Axios.
-
----
-
-## 1. Install
+## Run it
 
 ```bash
 npm install
+npm run dev        # development
+npm run build      # type-check + production build (outputs /dist)
+npm run preview    # preview the production build
 ```
 
-## 2. Run locally
+Requires Node 18+.
 
-```bash
-npm run dev
-```
+## ⚠️ Things you must fill in
 
-Opens at `http://localhost:5173`.
+1. **Email** → `src/config/site.ts` → `CONTACT_EMAIL`. It is empty on purpose: until you set it, the two
+   contact buttons are disabled (nothing fake). Once set, they open the visitor's mail app with the subject
+   "Let's Work Together — Isra Oun" and a short prefilled body.
+2. **Repository links** → `src/config/site.ts` → each project's `source`. Leave `null` to hide "View source".
+3. **Travel e-commerce** → add a `live` URL only if it is really deployed.
+4. **Your anime character** → drop a PNG at `public/assets/character/hero-character.png`
+   (transparent background, ~640×760, portrait). Until then the site shows a simple vector placeholder
+   (`hero-character.svg`). **No AI image was generated for you** — that part is yours to supply.
 
-## 3. Production build
+## CV button
 
-```bash
-npm run build
-npm run preview   # serve the built dist/ locally to sanity-check it
-```
+Put your CV at `public/cv/Isra-Oun-CV.pdf`. The "My CV" button checks that the file exists and is a PDF; until then it shows as disabled ("coming soon").
+Email, WhatsApp and the CV path live in `src/config/site.ts`.
 
-## 4. Replace the CV
+## Replace the placeholder artwork with your Readdy images
 
-The download/preview button reads from **`public/cv.pdf`**. To update it,
-just replace that file with your new PDF, keeping the exact same name:
+The design (layout, dark theme, typography, sections) is rebuilt in code. The *artwork* from Readdy cannot be
+extracted from photos of a screen, so these slots use original 3D/SVG art until you drop in files
+(first match wins, no code change needed):
 
-```bash
-cp /path/to/new-cv.pdf public/cv.pdf
-```
+- `public/assets/readdy/hero.jpg` — hero illustration (already included, from your upload); `hero-bg.jpg` — planet background (included)
+- `public/assets/readdy/world.jpg` — "Welcome to my world" banner
+- `public/assets/readdy/about.jpg` — About image (floating workshop)
+- `public/assets/projects/portfolio.jpg`, `maison.jpg`, `foodly.jpg`, `travel.jpg` — project covers
 
-Nothing in the code needs to change — the CV section (`src/sections/CV.jsx`)
-always points at `/cv.pdf`.
+The contact form builds a `mailto:` message; it stays disabled until `CONTACT_EMAIL` is set.
+The hero stats show true figures (+30 projects, 6 live sites), not the invented numbers from the mockup.
 
-A placeholder `cv.pdf` is included so the download button and preview work
-out of the box; **replace it with the real CV before publishing.**
+## Honest status of this delivery
 
-## 5. How the GitHub integration works
+- The code was written **without being installed, built or run** (the build environment had no network access,
+  so `npm install` was impossible). Run `npm install && npm run build` first; if the type-check or build reports
+  an error, it should be small and local — send me the message and I'll fix it.
+- 3D scenes are built from primitive shapes (no heavy models, no external textures/HDRIs), so they stay light.
+- Project previews are original SVG illustrations, **not** screenshots of your sites. To use real screenshots,
+  put images in `public/assets/projects/` and swap them into `src/components/Projects.tsx`.
+- Fonts (Fraunces, Outfit) load from Google Fonts; the site falls back to system fonts offline.
 
-`src/hooks/useGithubRepos.js` calls the public GitHub REST API directly
-from the browser:
-
-```
-GET https://api.github.com/users/israoun11/repos?per_page=100&sort=updated
-```
-
-This endpoint is public and needs no token, so **there is no secret to
-protect** — nothing is exposed because nothing is used. New public
-repositories you push to GitHub show up in the "digital constellation"
-(`src/sections/Constellation.jsx`, desktop) or the simple list (mobile)
-automatically on the next visit; nothing needs to be edited by hand.
-
-Results are cached in `localStorage` for 30 minutes so repeat visits
-don't hit GitHub's unauthenticated rate limit (60 requests/hour per IP).
-If a request fails, the site falls back to the last cached data, and
-if there's no cache at all, it shows a friendly message linking
-straight to your GitHub profile instead of breaking.
-
-**Optional — higher rate limit:** if you later want more headroom, add a
-Vercel serverless function (`/api/github.js`) holding a `GITHUB_TOKEN` in
-a Vercel environment variable, proxying the request server-side, then
-point `useGithubRepos.js` at `/api/github` instead. This keeps any token
-out of the frontend bundle. Not required for the site to work today.
-
-## 6. How to add or change featured projects
-
-Featured projects (the large, hand-curated gallery in "Projects") are
-defined in **`src/data/projects.js`**:
-
-```js
-export const featuredProjects = [
-  {
-    repo: 'Foodly',          // must match the GitHub repo name
-    name: 'Foodly',
-    tagline: 'A short line under the title',
-    description: 'A few sentences about the project.',
-    tech: ['React', 'Vite', '...'],
-    live: 'https://your-live-url.vercel.app/',
-    github: 'https://github.com/israoun11/Foodly',
-    accent: 'burgundy', // burgundy | gold | rose | charcoal
-  },
-  // add more objects here
-]
-```
-
-Add, remove, or reorder objects in this array to change what's featured
-and in what order it appears. Everything else you push to GitHub still
-appears automatically in the live constellation below it.
-
-## 7. Deploy to Vercel
-
-Static Vite build, no special configuration needed:
-
-1. Push this project to a GitHub repository.
-2. In Vercel, "Add New Project" → import that repository.
-3. Framework preset: **Vite** (auto-detected). Build command
-   `npm run build`, output directory `dist` (both auto-detected).
-4. Deploy.
-
-**To keep the same URL as the current portfolio** (`portfolioisra-rho.vercel.app`):
-either (a) connect this repo to the *existing* Vercel project instead of
-creating a new one (simplest — no domain settings to touch), or (b)
-deploy as a new project and reassign the domain from the old project's
-Settings → Domains once you're happy with it.
-
-## 8. Environment variables
-
-**None are required.** `npm install && npm run dev` works out of the box.
-The only optional addition is the `GITHUB_TOKEN` described in section 5.
-
-## 9. Customize colors and content
-
-- **Colors:** `tailwind.config.js` → `theme.extend.colors` — `cream`,
-  `pearl`, `plum`/`charcoal`, `blush`, `rose`, `lilac`, `lavender`,
-  `peach`, `champagne`, `burgundy`, `wine`, `gold`. Change the hex values
-  there and they update everywhere, including the 3D sculpture's petal
-  palette (`src/three/bloomStages.js` → `PETAL_PALETTE`).
-- **Fonts:** loaded in `index.html` (Fraunces for display/headings, Inter
-  for body/UI).
-- **Copy:** each section's text lives in its component under
-  `src/sections/`. Skills, certifications, education and languages live
-  in `src/data/` as plain arrays.
-- **The sculpture's choreography:** the seven "stages" it moves through
-  (bud → bloom → garden → gallery → archive → editorial → finale) are
-  defined in `src/three/bloomStages.js`; petal shape/material lives in
-  `src/three/petalGeometry.js` and `src/three/Petal.jsx`; the camera's
-  cinematic path per section is in `src/three/CameraRig.jsx`.
-
-## Project structure
+## Structure
 
 ```
-src/
-  components/   Nav, cursor, loader, scroll progress, shared UI bits
-  sections/     Hero, About, Skills, Projects, Github, Constellation,
-                Certifications, CV, Contact, Footer
-  three/        The Blooming Code Sculpture: Core, Petal, Bubbles,
-                Ribbons, CameraRig, choreography data
-  hooks/        useGithubRepos, useIsMobile, useReducedMotion
-  data/         Editable content: projects, skills, certifications
-public/
-  cv.pdf        Replace this file to update the CV (see section 4)
-  favicon.svg, og-image.jpg
+src/config/site.ts        links, email, projects (edit here)
+src/components/           Hero, Skills, Projects, World (banner + robot), About, Contact, EasterEgg
+src/components/*Scene.tsx  the 3D scenes: hero window + robot (lazy-loaded when scrolled near)
+src/components/scene-parts.tsx  island, flower, gear, cloud building blocks
+src/styles.css            design tokens and layout
 ```
 
-## Accessibility & performance notes
+## Accessibility & performance
 
-- Respects `prefers-reduced-motion`: idle sculpture motion, pointer
-  parallax, the camera's cinematic moves and the hero's GSAP parallax all
-  switch off; scroll-linked petal choreography stays, since it only moves
-  in direct response to the visitor's own scrolling.
-- Petal count, bubble count, ribbons and canvas resolution all drop on
-  narrower viewports; the GitHub constellation falls back to a simple
-  list layout on mobile, where a ring layout would just be cramped.
-- All petal instances share one procedural geometry (built once, reused
-  many times) rather than each carrying its own — the sculpture stays
-  cheap to render even with over a dozen petals plus bubbles and ribbons
-  on screen.
-- If WebGL fails to initialize for any reason, `SceneBoundary` removes
-  the canvas quietly rather than breaking the rest of the page.
-- Keyboard focus is visible on every interactive element; all images and
-  icon-only controls carry accessible labels.
+Semantic landmarks, skip link, keyboard-operable flower buttons (the 3D flowers also have DOM buttons),
+visible focus, `prefers-reduced-motion` (3D switches to on-demand rendering, CSS animation off),
+lower pixel ratio and fewer particles on mobile, 3D mounted only when near the viewport.
 
-## A note on this build
+## Easter egg
 
-This project was written by hand in an environment without package-registry
-network access, so `npm install` / `npm run build` could not be executed
-here to produce a live build log. Every file was syntax-checked individually
-(via esbuild) and every relative import was verified to resolve — but please
-run `npm install && npm run build` yourself as a final check before
-deploying. Two things worth a look when you do:
-
-1. The GSAP camera cinematics in `CameraRig.jsx` use one ScrollTrigger per
-   section with fairly wide, slightly overlapping ranges; on some screens
-   the camera move between two adjacent sections may feel a touch abrupt.
-   If so, narrowing each `start`/`end` pair is the first thing to try.
-2. `iridescence` on `meshPhysicalMaterial` requires three.js r157+ (this
-   project pins `three@^0.169.0`, well past that), so it should render as
-   intended, but it's a newer material feature worth eyeballing on first
-   run.
-
+A tiny ✦ star in the hero (top right of the planet area). Click or press Enter; it cycles developer quotes.
