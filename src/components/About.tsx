@@ -1,18 +1,98 @@
-import { WorldArt } from './Art'
-import SlotImage from './SlotImage'
+import { useState } from 'react'
+import cardImg from '../assets/card.jpg'
 
 export default function About() {
+  const [on, setOn] = useState(false)
   return (
-    <section id="about" className="section about" aria-labelledby="about-title">
-      <div className="about-img">
-        <img src='https://public.readdy.ai/ai/img_res/f647d2ec53d97f24498427202c78b7de.jpg' alt="A cosy floating workshop with a small robot and a glowing flower"  />
+    <section className="about" id="about">
+      <span className="mono rose">About Isra</span>
+      <h2 style={{ marginTop: 22 }}>
+        Building things from <em>scratch.</em>
+      </h2>
+      <div className="about3">
+        <div>
+          <h3>Hi, I’m Isra.</h3>
+          <p>I’m a full-stack developer with a MERN stack, TypeScript and a habit of shipping: more than 30 practice projects and several complete apps built end to end.</p>
+          <p>My real education came from building things from scratch.</p>
+          <p>I care about interfaces that feel good to use and code that has tests behind it, from the React screen to the Express API and the database.</p>
+          <a className="btn out" href="https://github.com/israoun11">
+            GitHub <span>↗</span>
+          </a>
+        </div>
+        <div className="idwrap">
+          <button className={'flip' + (on ? ' on' : '')} onClick={() => setOn((v) => !v)} aria-label="Flip the developer ID card">
+            <div className="clip">
+              <i></i>
+            </div>
+            <div className="in">
+              <div className="face front">
+                <div className="fhead">
+                  <span className="mono">Developer ID</span>
+                  <span>✳</span>
+                </div>
+                <div className="fph">
+                  <img src={cardImg} alt="Isra Oun" />
+                  <div className="stick">
+                    LET’S
+                    <br />
+                    BUILD
+                  </div>
+                </div>
+                <div className="fbody">
+                  <h3>Isra Oun</h3>
+                  <p>Full-stack developer</p>
+                </div>
+                <div className="kv">
+                  <span>Based in</span>
+                  <b>Gabès</b>
+                  <span>Stack</span>
+                  <b>MERN + TS</b>
+                </div>
+                <div className="code">
+                  <div className="bar"></div>
+                  <i>Isra.</i>
+                </div>
+                <div className="hint mono">Hover or tap to flip ↻</div>
+              </div>
+              <div className="face back">
+                <span className="mono">The code behind the story</span>
+                <div className="badge">
+                  <b>✳</b>
+                </div>
+                <h3>Code that connects.</h3>
+                <ul>
+                  <li>Full-stack developer</li>
+                  <li>React and TypeScript</li>
+                  <li>Node, Express and MongoDB</li>
+                  <li>Tests with Vitest</li>
+                  <li>CI with GitHub Actions</li>
+                </ul>
+                <i className="sg">Isra.</i>
+              </div>
+            </div>
+          </button>
+          <span className="cap mono">A little personality. A lot of code.</span>
+        </div>
+        <div className="afacts">
+      <div className="mono rose alabel">
+        A little more about me
       </div>
-      <div className="about-copy">
-        <p className="eyebrow">About Isra</p>
-        <h2 id="about-title" className="h-big">Equal parts engineer and daydreamer.</h2>
-        <p>I’m Isra, a junior full-stack developer who loves turning ideas into interactive digital experiences. I build interfaces with React and TypeScript, and the systems behind them with Node.js, Express and MongoDB.</p>
-        <p>My days move between two worlds: the precision of TypeScript and clean architecture, and the playfulness of animation, atmosphere and tiny delightful details. I care about accessibility and the small moments that make people smile.</p>
-        <p>I’m curious, committed and always learning — and ready to contribute to a team.</p>
+      <div className="facts">
+        <div>
+          Based in<b>Gabès, Tunisia</b>
+        </div>
+        <div>
+          Languages<b>Arabic, English, French</b>
+        </div>
+        <div>
+          Focus<b>React and TypeScript</b>
+        </div>
+        <div>
+          Looking for<b>Junior roles, remote OK</b>
+        </div>
+      </div>
+      <span className="q">“Clean code that works, and interfaces people enjoy.”</span>
+        </div>
       </div>
     </section>
   )
