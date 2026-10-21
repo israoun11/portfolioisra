@@ -37,7 +37,9 @@ export const projects: Project[] = [
   { initial: 'F', name: 'Foodly', category: 'Frontend', text: 'A food web app deployed on Vercel.', gradient: 'linear-gradient(150deg,#f0c29a,#d98a6b)', label: 'Open site', href: 'https://foodly-kappa-blue.vercel.app/' },
   { initial: 'T', name: 'Travel e-commerce', category: 'Full-stack', text: 'React, Express, MongoDB Atlas, Zod and Cloudinary uploads.', gradient: 'linear-gradient(150deg,#a99be0,#7b6bb5)', label: 'View code', href: 'https://github.com/israoun11' },
   { initial: 'J', name: 'JobMatch', category: 'Full-stack', text: 'A job-matching app on React, Node, Express and MongoDB.', gradient: 'linear-gradient(150deg,#9fb4ea,#6f86cf)', label: 'View code', href: 'https://github.com/israoun11' },
-  { initial: '3D', name: 'Isra’s Digital Planet', category: '3D portfolio', text: 'React, TypeScript and Three.js, with tests and CI.', gradient: 'linear-gradient(150deg,#8fd0b5,#4aa385)', label: 'Open site', href: 'https://portfolioisra-rho.vercel.app/' },
+  { initial: 'F', name: 'FIFA', category: 'Frontend', text: 'A FIFA-themed web application built with React.', gradient: 'linear-gradient(150deg,#65a9e8,#1746a2)', label: 'View code', href: 'https://github.com/israoun11/fifa' },
+  { initial: 'B', name: 'Bandidos', category: 'Frontend', text: 'A web application built with React.', gradient: 'linear-gradient(150deg,#e8a6b8,#c98398)', label: 'View code', href: 'https://github.com/israoun11/Bandidos' },
+  { initial: 'C', name: 'Cookies', category: 'Frontend', text: 'A cookie-themed web application built with React.', gradient: 'linear-gradient(150deg,#d9a066,#8b572a)', label: 'View code', href: 'https://github.com/israoun11/cookies' },
 ]
 
 export const cvUrl: string = (import.meta.env.VITE_CV_DATA_URL as string | undefined) ?? import.meta.env.BASE_URL + 'Isra_Oun_CV_EN.pdf'
