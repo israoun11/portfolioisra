@@ -40,6 +40,7 @@ export const projects: Project[] = [
   { initial: 'F', name: 'FIFA', category: 'Frontend', text: 'A FIFA-themed web application built with React.', gradient: 'linear-gradient(150deg,#65a9e8,#1746a2)', label: 'View code', href: 'https://github.com/israoun11/fifa' },
   { initial: 'B', name: 'Bandidos', category: 'Frontend', text: 'A web application built with React.', gradient: 'linear-gradient(150deg,#e8a6b8,#c98398)', label: 'View code', href: 'https://github.com/israoun11/Bandidos' },
   { initial: 'C', name: 'Cookies', category: 'Frontend', text: 'A cookie-themed web application built with React.', gradient: 'linear-gradient(150deg,#d9a066,#8b572a)', label: 'View code', href: 'https://github.com/israoun11/cookies' },
+  { initial: 'H', name: 'Hotel Menara', category: 'Full Stack', text: 'A hotel booking website featuring room listings and reservation management.', gradient: 'linear-gradient(150deg,#c9a875,#55412f)', label: 'View project', href: 'https://hotel-menara.vercel.app/' },
 ]
 
 export const cvUrl: string = (import.meta.env.VITE_CV_DATA_URL as string | undefined) ?? import.meta.env.BASE_URL + 'Isra_Oun_CV_EN.pdf'
